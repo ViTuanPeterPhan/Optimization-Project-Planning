@@ -1,0 +1,324 @@
+####Programmed by ViTuan "Peter" Phan.
+####This is the second iteration of the integration project.
+####We will (eventually) create a CPM network to solve for the optimum setup for the project so that the minimum number of workers are hired and the minimum number of work days will be used.
+####At this point, the program has 315 lines! Woo hoo!
+
+#startup() only runs at the start of the program, so the welcome text doesn't display multiple times.
+def startup():
+    print("Welcome to the job optimization program.", "Designed by ViTuan Phan.", "This is the second iteration of this project.", sep="\n\n", end="\n\n")
+    main()
+
+#main() is our main menu function that selects the other functions.
+def main():
+    print("\nMain Menu: \n1. Start a new job list. \n2. Add jobs to existing list. \n3. View jobs currently in list. \n4. Optimize project. \n\n5. Other COP 1500 requirements.")
+    selectOption = input("\nWhich option would you like to utilize? ")
+    if selectOption == "1":
+        resetList()
+    elif selectOption == "2":
+        jobCollect()
+    elif selectOption == "3":
+        jobViewStartup()
+    elif selectOption == "4":
+        optimize()
+    elif selectOption == "5":
+        requirements()
+    else:
+        print("\nError in your selection input. Please try again. ")
+        main()
+
+#resetList() resets the .txt files, used for starting new projects.
+def resetList():
+    print("Are you sure you want to start a new job list? \nThis will erase all current list data! ")
+    warning = input("\nEnter 'y' to confirm, or anything else to go back to the main menu. ")
+    if warning == "y":
+        print("\nAll previous data has been erased. Starting new job list. ")
+        inFile = open("jobData.txt", 'w')
+        inFile.close()
+        inFile = open("justData.txt", 'w')
+        inFile.close()
+        jobCollect()
+    else:
+        main()
+
+#jobCollect() adds jobs to the existing .txt file.
+def jobCollect():
+    print("Now adding jobs to the list. ")
+    addData = "y"
+    while addData == "y":
+        print("\nPlease enter job name, duration, and number of workers. ")
+        jobName = input("What is the name of the job? ")
+        jobDuration = input("How long will this job take to complete (in days)? ")
+        jobWorkers = input("What is the minimum number of workers this job requires to complete? ")
+
+        inFile = open("jobData.txt", 'a') #This .txt contains the information for each job, duration, and worker requirement for the project.
+        inFile.write("Job name: " + jobName)
+        inFile.write("\nDuration of job: " + jobDuration)
+        inFile.write("\nNumber of workers: " + jobWorkers)
+        inFile.write("\n\n")
+        inFile.close()
+
+        inFile = open("justData.txt", 'a') #This .txt has the extra flavor text removed, so that I can more easily manipulate the data.
+        inFile.write(jobName)
+        inFile.write("\n"+jobDuration)
+        inFile.write("\n"+jobWorkers)
+        inFile.write("\n\n")
+        inFile.close()
+        print("Job information has been collected.")
+
+        addData = input("\nEnter 'y' to input another job, or anything else to return to the main menu.")
+    print("\nDone! All data was saved in the file jobData.txt")
+    main()
+
+#jobViewStartup() only runs at before jobView(), so the 'number of jobs' text doesn't display multiple times.
+def jobViewStartup():
+    dataList = open('jobData.txt')
+    numJobs = int(len(dataList.readlines())/4)
+    print("There are currenly " + str(numJobs) + " jobs listed in the project. ")
+    jobView()
+
+#jobView() views jobs currently saved in the .txt file.
+def jobView():
+    viewAnother = "y"
+    try:
+        while viewAnother == "y":
+            jobDataList = open('jobData.txt') 
+            read = jobDataList.readlines()
+            jobSelection = int(input("Enter job number you'd like to see: "))
+            jobIndex = 4 *(jobSelection - 1)
+            print(str(jobSelection) + ". " + str(read[jobIndex]) + "   " + str(read[jobIndex+1]) + "   " + str(read[jobIndex+2]))
+
+            jobSelection = 0
+            viewAnother = input("Enter 'y' to view another job, or anything else to return to the main menu.")
+    except:
+        dataList = open('jobData.txt')
+        numJobs = int(len(dataList.readlines())/4)
+        print("There is not currently a job number " + str(jobSelection) + ". \n\nThere are currenly " + str(numJobs) + " jobs listed in the project. ")
+        jobView()
+    main()
+
+#optimize() allows the user to calculate optimal job durations based on whether different tasks can be completed at the same time or not.
+#This is the first step towards a CPM network.
+def optimize():
+    dataList = open('justData.txt')
+    numJobs = int(len(dataList.readlines())/4)
+    print("\nThere are currenly " + str(numJobs) + " jobs listed in the project: ")
+
+    dataList = [x[:-1] for x in open('justData.txt').readlines()]
+
+    counter = 0
+    for x in dataList[0::4]:
+        counter += 1
+        print("Job " + str(counter) + ". " + str(x))
+
+    dayValues = dataList[1::4]
+    workerValues = dataList[2::4]
+    totalDays = 0
+    totalWorkers = 0
+    for x in dayValues:
+        totalDays += int(x)
+    for x in workerValues:
+        totalWorkers += int(x)
+    print("\nYour project will require at least", str(totalDays), "days and at least", str(totalWorkers), "workers in total to complete without any optimizations. ")
+
+    checkAnother = "y"
+    while checkAnother == "y":
+        overlap = list(input("\nEnter job numbers that can be completed at the same time, separated by commas: ").strip().split(','))
+
+        overlapDayValues = []
+        for x in overlap:
+            overlapDayValues.append(dataList[1+((int(x)-1)*4)])
+
+        nonoverlapDayValues = [x for x in dayValues if x not in overlapDayValues]
+    
+        for i in range(0, len(nonoverlapDayValues)):
+            nonoverlapDayValues[i] = int(nonoverlapDayValues[i])
+        for i in range(0, len(overlapDayValues)):
+            overlapDayValues[i] = int(overlapDayValues[i])
+
+        maxTotalOverlapDay = int(max(overlapDayValues))
+
+        newTotalDays = maxTotalOverlapDay + sum(nonoverlapDayValues)
+    
+        print("\nYour project will now require at least", str(newTotalDays), "days and at least", str(totalWorkers), "workers in total to complete. ")
+        checkAnother = input("\nEnter 'y' to check another configuration, or anything else to return to the main menu.")
+    main()
+
+#requirements() is a submenu that houses the remaining requirements that were not used in my program.
+#It exists to suffice the classroom project requirements.
+def requirements():
+    print("\nThis submenu houses the remaining requirements that were not used in my program! ")
+    print("Available options: \n1. Calculator. \n2. Miscellaneous. ")
+    selectOption = input("\nWhich option would you like to utilize? ")
+    if selectOption == "1":
+        calculatorStartup()
+    elif selectOption == "2":
+        misc1()
+    else:
+        print("\nError in your selection input. Please try again. ")
+        requirements()
+
+#calculatorStartup() only runs at before calculator(), so the 'available math operations' list doesn't display multiple times.
+def calculatorStartup():
+    print("The calculator is a set of functions that perform basic operations as well as check truth values of equality statements. ")
+    print("\nAvailable methematical operations: \n (+) Addition \n (-) Subtraction \n (*) Multiplication \n (/) Division \n (%) Modulus \n(**) Exponentiation \n(//) Floor Division ")
+    print("\n (=) Equality \n(!=) Inequality \n (<) Less Than \n (>) Greater Than \n(<=) Less Than or Equal To \n(>=) Greater Than or Equal To ")
+    calculator()
+
+#calculator() is exactly what you would think it is: a set of functions that perform basic operations as well as check truth values of equality statements.
+def calculator():
+    checkAnother = "y"
+    while checkAnother == "y":
+        userInput = input("\nEnter a mathematical expression in the form a \u2605 b, \nwhere a and b are numbers and \u2605 is a mathematical operator. ")
+        userInputList = list(userInput.strip().split())
+        if '+' in userInputList:
+            print("Your chosen operation is addition. ")
+            a = float(userInputList[0])
+            b = float(userInputList[2])
+            equals = a+b
+            print(userInput, "=", equals)
+        elif '-' in userInputList:
+            print("Your chosen operation is subtraction. ")
+            a = float(userInputList[0])
+            b = float(userInputList[2])
+            equals = a-b
+            print(userInput, "=", equals)
+        elif '*' in userInputList:
+            print("Your chosen operation is multiplication. ")
+            a = float(userInputList[0])
+            b = float(userInputList[2])
+            equals = a*b
+            print(userInput, "=", equals)
+        elif '/' in userInputList:
+            print("Your chosen operation is division. ")
+            a = float(userInputList[0])
+            b = float(userInputList[2])
+            if b == 0:
+                print("Sorry, you cannot divide by zero. \nOperation terminated. Please enter another expression. ")
+                requirements()
+            else:
+                equals = a/b
+                print(userInput, "=", equals)
+        elif '**' in userInputList:
+            print("Your chosen operation is exponentiation. ")
+            a = float(userInputList[0])
+            b = float(userInputList[2])
+            equals = a**b
+            print(userInput, "=", equals)
+        elif '//' in userInputList:
+            print("Your chosen operation is floor division. ")
+            a = float(userInputList[0])
+            b = float(userInputList[2])
+            equals = a//b
+            print(userInput, "=", equals)
+        elif '%' in userInputList:
+            print("Your chosen operation is modulus. ")
+            a = float(userInputList[0])
+            b = float(userInputList[2])
+            equals = a%b
+            print(userInput, "=", equals)
+        elif ('=') in userInputList:
+            print("You've chosen to check equality. ")
+            a = float(userInputList[0])
+            b = float(userInputList[2])
+            if not a == b:  #wrote this expression check to include the 'not' key phrase.
+                print(userInput, "is not a true expression. ")
+            elif a == b:
+                print(userInput, "is a true expression. ")
+        elif ('!=') in userInputList:
+            print("You've chosen to check equality. ")
+            a = float(userInputList[0])
+            b = float(userInputList[2])
+            if a != b:
+                print(userInput, "is a true expression. ")
+            else:
+                print(userInput, "is not a true expression. ")
+        elif ('>') in userInputList:
+            print("You've chosen to check equality. ")
+            a = float(userInputList[0])
+            b = float(userInputList[2])
+            if a > b:
+                print(userInput, "is a true expression. ")
+            else:
+                print(userInput, "is not a true expression. ")
+        elif ('<') in userInputList:
+            print("You've chosen to check equality. ")
+            a = float(userInputList[0])
+            b = float(userInputList[2])
+            if a < b:
+                print(userInput, "is a true expression. ")
+            else:
+                print(userInput, "is not a true expression. ")
+        elif ('>=') in userInputList:
+            print("You've chosen to check equality. ")
+            a = float(userInputList[0])
+            b = float(userInputList[2])
+            if a >= b:
+                print(userInput, "is a true expression. ")
+            else:
+                print(userInput, "is not a true expression. ")
+        elif ('<=') in userInputList:
+            print("You've chosen to check equality. ")
+            a = float(userInputList[0])
+            b = float(userInputList[2])
+            if a <= b:
+                print(userInput, "is a true expression. ")
+            else:
+                print(userInput, "is not a true expression. ")
+        else:
+            print("Sorry, that does not fit this function's input requirements. \nOperation terminated. Please enter another expression. ")
+        checkAnother = input("\nEnter 'y' to perform another operation, or anything else to return to the main menu. ")
+    print("Returning to the main menu! ")
+    main()
+
+#misc1() will pass along inputs as parameters to other functions.
+def misc1():
+    print("Let's pass along some inputs as parameters to other functions! ")
+    parameters = input("Type whatever you want and press enter! ")
+    misc2(parameters)
+
+
+def misc2(userInput):
+    if len(userInput)<0 or len(userInput)==0:   #or key term!
+        print("Oops! You didn't enter anything! Try again. ")
+        misc1()
+    elif userInput.isspace():
+        print("Oops! You only entered spaces! Try again. ")
+        misc1()
+    else:
+        print("Your parameter was " + str(userInput) + "! ")
+        userInputList = list(userInput.strip().split())
+        tripleIt = input("type 'three's company too' to triple every first phrase, bit, or chunk of your input! ")
+        if tripleIt == "three's company too":
+            tripleInputList = []
+            for x in range(0, len(userInputList)):
+                tripleInputList.append((" " + userInputList[x] + " ")*3)    #string multiplication operator!
+            print(tripleInputList)
+            print("\nThanks for playing! Returning to the main menu. ")
+            main()
+        else:
+            print("\nNo problem, three's a crowd anyways. ")
+            parameters = userInputList
+            misc3(parameters)
+
+def misc3(inputList):
+    if len(inputList) == 1:
+        print("\nYou didn't include any spaces in your input! ")
+    elif len(inputList) == 2:
+        print("\nYou included 1 space in your input! ")
+    elif len(inputList) > 2 and len(inputList) <= 10:   #and key term!
+        print("\nYou included " + str(len(inputList)-1) + " spaces in your input! ")
+    print("\nThanks for playing! Returning to the main menu. ")
+    main()
+
+
+
+startup()
+
+
+
+
+
+
+
+
+
