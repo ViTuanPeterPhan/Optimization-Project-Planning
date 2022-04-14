@@ -1,324 +1,405 @@
-####Programmed by ViTuan "Peter" Phan.
-####This is the second iteration of the integration project.
-####We will (eventually) create a CPM network to solve for the optimum setup for the project so that the minimum number of workers are hired and the minimum number of work days will be used.
-####At this point, the program has 315 lines! Woo hoo!
+# Programmed by ViTuan "Peter" Phan.
 
-#startup() only runs at the start of the program, so the welcome text doesn't display multiple times.
-def startup():
-    print("Welcome to the job optimization program.", "Designed by ViTuan Phan.", "This is the second iteration of this project.", sep="\n\n", end="\n\n")
-    main()
+# This is the final iteration of the integration project.
 
-#main() is our main menu function that selects the other functions.
+# We intended to create a CPM network to solve for the optimum setup
+# of a project so that the minimum number of workers are hired and the
+# minimum number of work days will be used.
+
+# main() only runs at the start of the program, so the welcome text
+# doesn't display multiple times.
 def main():
-    print("\nMain Menu: \n1. Start a new job list. \n2. Add jobs to existing list. \n3. View jobs currently in list. \n4. Optimize project. \n\n5. Other COP 1500 requirements.")
-    selectOption = input("\nWhich option would you like to utilize? ")
-    if selectOption == "1":
-        resetList()
-    elif selectOption == "2":
-        jobCollect()
-    elif selectOption == "3":
-        jobViewStartup()
-    elif selectOption == "4":
-        optimize()
-    elif selectOption == "5":
-        requirements()
-    else:
-        print("\nError in your selection input. Please try again. ")
-        main()
+    print("Welcome to the job optimization program.",
+          "Designed by ViTuan Phan.",
+          "This is the final iteration of this project.", sep="\n\n",
+          end="\n\n")
+    menu()
 
-#resetList() resets the .txt files, used for starting new projects.
-def resetList():
-    print("Are you sure you want to start a new job list? \nThis will erase all current list data! ")
-    warning = input("\nEnter 'y' to confirm, or anything else to go back to the main menu. ")
+
+# menu() is our main menu function that selects the other functions.
+def menu():
+    run = "y"
+    while run == "y":
+        print(
+            "\nMain Menu: \n1. Start a new project. \n2. Add jobs to existing "
+            "list. \n3. View jobs currently in list. \n4. Optimize project. "
+            "\n\n5. Other COP 1500 requirements. \n\n0. End Program. ")
+        select_option = input("\nWhich option would you like to utilize? ")
+        if select_option == "1":
+            reset_list()
+        elif select_option == "2":
+            job_collect()
+        elif select_option == "3":
+            job_view_startup()
+        elif select_option == "4":
+            optimize()
+        elif select_option == "5":
+            requirements()
+        elif select_option == "0":
+            run = str(input(
+                "\nEnter 'y' to go back to the main menu, or anything else to "
+                "end the program. "))
+        else:
+            print("\nError in your selection input. Please try again. ")
+
+
+# reset_list() resets the .txt files, used for starting new projects.
+def reset_list():
+    print(
+        "Are you sure you want to start a new job list? \nThis will erase "
+        "all current list data! ")
+    warning = input(
+        "\nEnter 'y' to confirm, or anything else to go back to the main "
+        "menu. ")
     if warning == "y":
         print("\nAll previous data has been erased. Starting new job list. ")
-        inFile = open("jobData.txt", 'w')
-        inFile.close()
-        inFile = open("justData.txt", 'w')
-        inFile.close()
-        jobCollect()
+        in_file = open("jobData.txt", 'w')
+        in_file.close()
+        in_file = open("justData.txt", 'w')
+        in_file.close()
+        job_collect()
     else:
-        main()
+        menu()
 
-#jobCollect() adds jobs to the existing .txt file.
-def jobCollect():
+
+# jobCollect() adds jobs to the existing .txt file.
+def job_collect():
     print("Now adding jobs to the list. ")
-    addData = "y"
-    while addData == "y":
+    add_data = "y"
+    while add_data == "y":
         print("\nPlease enter job name, duration, and number of workers. ")
-        jobName = input("What is the name of the job? ")
-        jobDuration = input("How long will this job take to complete (in days)? ")
-        jobWorkers = input("What is the minimum number of workers this job requires to complete? ")
+        job_name = input("What is the name of the job? ")
+        job_duration = input(
+            "How long will this job take to complete (in days)? ")
+        job_workers = input(
+            "What is the minimum number of workers this job requires to "
+            "complete? ")
 
-        inFile = open("jobData.txt", 'a') #This .txt contains the information for each job, duration, and worker requirement for the project.
-        inFile.write("Job name: " + jobName)
-        inFile.write("\nDuration of job: " + jobDuration)
-        inFile.write("\nNumber of workers: " + jobWorkers)
-        inFile.write("\n\n")
-        inFile.close()
+        # Need to include checks for duration and workers, because if the
+        # input type is not numerical, it will cause issues down the line.
 
-        inFile = open("justData.txt", 'a') #This .txt has the extra flavor text removed, so that I can more easily manipulate the data.
-        inFile.write(jobName)
-        inFile.write("\n"+jobDuration)
-        inFile.write("\n"+jobWorkers)
-        inFile.write("\n\n")
-        inFile.close()
+        in_file = open("jobData.txt",
+                       'a')  # This .txt contains the information for each
+        # job, duration, and worker requirement for the project.
+        in_file.write("Job name: " + job_name)
+        in_file.write("\nDuration of job: " + job_duration)
+        in_file.write("\nNumber of workers: " + job_workers)
+        in_file.write("\n\n")
+        in_file.close()
+
+        in_file = open("justData.txt",
+                       'a')  # This .txt has the extra flavor text removed,
+        # so that I can more easily manipulate the data.
+        in_file.write(job_name)
+        in_file.write("\n" + job_duration)
+        in_file.write("\n" + job_workers)
+        in_file.write("\n\n")
+        in_file.close()
         print("Job information has been collected.")
 
-        addData = input("\nEnter 'y' to input another job, or anything else to return to the main menu.")
+        add_data = input(
+            "\nEnter 'y' to input another job, or anything else to return to "
+            "the main menu.")
     print("\nDone! All data was saved in the file jobData.txt")
-    main()
+    menu()
 
-#jobViewStartup() only runs at before jobView(), so the 'number of jobs' text doesn't display multiple times.
-def jobViewStartup():
-    dataList = open('jobData.txt')
-    numJobs = int(len(dataList.readlines())/4)
-    print("There are currenly " + str(numJobs) + " jobs listed in the project. ")
-    jobView()
 
-#jobView() views jobs currently saved in the .txt file.
-def jobView():
-    viewAnother = "y"
+# job_view_startup() only runs at before job_view(), so the 'number of jobs'
+# text doesn't display multiple times.
+def job_view_startup():
+    data_list = open('jobData.txt')
+    num_jobs = int(len(data_list.readlines()) / 4)
+    print(
+        "There are " + str(num_jobs) + " jobs listed in the project, "
+                                       "currently. ")
+    job_view()
+
+
+# job_view() views jobs currently saved in the .txt file.
+# Need to rewrite this portion to remove try/except configuration.
+def job_view():
+    view_another = "y"
     try:
-        while viewAnother == "y":
-            jobDataList = open('jobData.txt') 
-            read = jobDataList.readlines()
-            jobSelection = int(input("Enter job number you'd like to see: "))
-            jobIndex = 4 *(jobSelection - 1)
-            print(str(jobSelection) + ". " + str(read[jobIndex]) + "   " + str(read[jobIndex+1]) + "   " + str(read[jobIndex+2]))
+        while view_another == "y":
+            job_data_list = open('jobData.txt')
+            read = job_data_list.readlines()
+            job_selection = int(input("Enter job number you'd like to see: "))
+            job_index = 4 * (job_selection - 1)
+            print(
+                str(job_selection) + ". " + str(read[job_index]) + "   " + str(
+                    read[job_index + 1]) + "   " + str(read[job_index + 2]))
 
-            jobSelection = 0
-            viewAnother = input("Enter 'y' to view another job, or anything else to return to the main menu.")
+            job_selection = 0
+            view_another = input(
+                "Enter 'y' to view another job, or anything else to return "
+                "to the main menu. ")
     except:
-        dataList = open('jobData.txt')
-        numJobs = int(len(dataList.readlines())/4)
-        print("There is not currently a job number " + str(jobSelection) + ". \n\nThere are currenly " + str(numJobs) + " jobs listed in the project. ")
-        jobView()
-    main()
+        data_list = open('jobData.txt')
+        num_jobs = int(len(data_list.readlines()) / 4)
+        print("There is not currently a job number " + str(
+            job_selection) + ". \n\nThere are " + str(
+            num_jobs) + " jobs listed in the project, currently. ")
+        job_view()
+    menu()
 
-#optimize() allows the user to calculate optimal job durations based on whether different tasks can be completed at the same time or not.
-#This is the first step towards a CPM network.
+
+# optimize() allows the user to calculate optimal job durations based on
+# whether different tasks can be completed at the same time or not. This is
+# the first step towards a CPM network.
 def optimize():
-    dataList = open('justData.txt')
-    numJobs = int(len(dataList.readlines())/4)
-    print("\nThere are currenly " + str(numJobs) + " jobs listed in the project: ")
+    data_list = open('justData.txt')
+    num_jobs = int(len(data_list.readlines()) / 4)
+    print("\nThere are " + str(num_jobs) + " jobs listed in the project, "
+                                           "currently. ")
 
-    dataList = [x[:-1] for x in open('justData.txt').readlines()]
+    data_list = [x[:-1] for x in open('justData.txt').readlines()]
 
     counter = 0
-    for x in dataList[0::4]:
+    for x in data_list[0::4]:
         counter += 1
         print("Job " + str(counter) + ". " + str(x))
 
-    dayValues = dataList[1::4]
-    workerValues = dataList[2::4]
-    totalDays = 0
-    totalWorkers = 0
-    for x in dayValues:
-        totalDays += int(x)
-    for x in workerValues:
-        totalWorkers += int(x)
-    print("\nYour project will require at least", str(totalDays), "days and at least", str(totalWorkers), "workers in total to complete without any optimizations. ")
+    day_values = data_list[1::4]
+    worker_values = data_list[2::4]
+    total_days = 0
+    total_workers = 0
+    for x in day_values:
+        total_days += int(x)
+    for x in worker_values:
+        total_workers += int(x)
+    print("\nYour project will require at least", str(total_days),
+          "days and at least", str(total_workers),
+          "workers in total to complete without any optimizations. ")
 
-    checkAnother = "y"
-    while checkAnother == "y":
-        overlap = list(input("\nEnter job numbers that can be completed at the same time, separated by commas: ").strip().split(','))
+    check_another = "y"
+    while check_another == "y":
+        overlap = list(input(
+            "\nEnter job numbers that can be completed at the same time, "
+            "separated by commas: ").strip().split(','))
 
-        overlapDayValues = []
+        overlap_day_values = []
         for x in overlap:
-            overlapDayValues.append(dataList[1+((int(x)-1)*4)])
+            overlap_day_values.append(data_list[1 + ((int(x) - 1) * 4)])
 
-        nonoverlapDayValues = [x for x in dayValues if x not in overlapDayValues]
-    
-        for i in range(0, len(nonoverlapDayValues)):
-            nonoverlapDayValues[i] = int(nonoverlapDayValues[i])
-        for i in range(0, len(overlapDayValues)):
-            overlapDayValues[i] = int(overlapDayValues[i])
+        nonoverlap_day_values = [x for x in day_values if
+                                 x not in overlap_day_values]
 
-        maxTotalOverlapDay = int(max(overlapDayValues))
+        for i in range(0, len(nonoverlap_day_values)):
+            nonoverlap_day_values[i] = int(nonoverlap_day_values[i])
+        for i in range(0, len(overlap_day_values)):
+            overlap_day_values[i] = int(overlap_day_values[i])
 
-        newTotalDays = maxTotalOverlapDay + sum(nonoverlapDayValues)
-    
-        print("\nYour project will now require at least", str(newTotalDays), "days and at least", str(totalWorkers), "workers in total to complete. ")
-        checkAnother = input("\nEnter 'y' to check another configuration, or anything else to return to the main menu.")
-    main()
+        max_total_overlap_day = int(max(overlap_day_values))
 
-#requirements() is a submenu that houses the remaining requirements that were not used in my program.
-#It exists to suffice the classroom project requirements.
+        new_total_days = max_total_overlap_day + sum(nonoverlap_day_values)
+
+        print("\nYour project will now require at least", str(new_total_days),
+              "days and at least", str(total_workers),
+              "workers in total to complete. ")
+        check_another = input(
+            "\nEnter 'y' to check another configuration, or anything else to "
+            "return to the main menu.")
+    menu()
+
+
+# requirements() is a submenu that houses the remaining requirements that
+# were not used in my program. It exists to suffice the classroom project
+# requirements.
 def requirements():
-    print("\nThis submenu houses the remaining requirements that were not used in my program! ")
+    print(
+        "\nThis submenu houses the remaining requirements that were not used "
+        "in my program! ")
     print("Available options: \n1. Calculator. \n2. Miscellaneous. ")
-    selectOption = input("\nWhich option would you like to utilize? ")
-    if selectOption == "1":
-        calculatorStartup()
-    elif selectOption == "2":
-        misc1()
+    select_option = input("\nWhich option would you like to utilize? ")
+    if select_option == "1":
+        calculator_startup()
+    elif select_option == "2":
+        misc_1()
     else:
         print("\nError in your selection input. Please try again. ")
         requirements()
 
-#calculatorStartup() only runs at before calculator(), so the 'available math operations' list doesn't display multiple times.
-def calculatorStartup():
-    print("The calculator is a set of functions that perform basic operations as well as check truth values of equality statements. ")
-    print("\nAvailable methematical operations: \n (+) Addition \n (-) Subtraction \n (*) Multiplication \n (/) Division \n (%) Modulus \n(**) Exponentiation \n(//) Floor Division ")
-    print("\n (=) Equality \n(!=) Inequality \n (<) Less Than \n (>) Greater Than \n(<=) Less Than or Equal To \n(>=) Greater Than or Equal To ")
+
+# calculator_startup() only runs at before calculator(), so the 'available
+# math operations' list doesn't display multiple times.
+def calculator_startup():
+    print(
+        "The calculator is a set of functions that perform basic operations "
+        "as well as check truth values of equality statements. ")
+    print(
+        "\nAvailable mathematical operations: \n (+) Addition \n (-) "
+        "Subtraction \n (*) Multiplication \n (/) Division \n (%) Modulus "
+        "\n(**) Exponentiation \n(//) Floor Division ")
+    print(
+        "\n (=) Equality \n(!=) Inequality \n (<) Less Than \n (>) Greater "
+        "Than \n(<=) Less Than or Equal To \n(>=) Greater Than or Equal To ")
     calculator()
 
-#calculator() is exactly what you would think it is: a set of functions that perform basic operations as well as check truth values of equality statements.
+
+# calculator() is exactly what you would think it is: a set of functions
+# that perform basic operations as well as check truth values of equality
+# statements.
 def calculator():
-    checkAnother = "y"
-    while checkAnother == "y":
-        userInput = input("\nEnter a mathematical expression in the form a \u2605 b, \nwhere a and b are numbers and \u2605 is a mathematical operator. ")
-        userInputList = list(userInput.strip().split())
-        if '+' in userInputList:
+    check_another = "y"
+    while check_another == "y":
+        user_input = input(
+            "\nEnter a mathematical expression in the form a \u2605 b, "
+            "\nwhere a and b are numbers and \u2605 is a mathematical "
+            "operator. ")
+        user_input_list = list(user_input.strip().split())
+        if '+' in user_input_list:
             print("Your chosen operation is addition. ")
-            a = float(userInputList[0])
-            b = float(userInputList[2])
-            equals = a+b
-            print(userInput, "=", equals)
-        elif '-' in userInputList:
+            a = float(user_input_list[0])
+            b = float(user_input_list[2])
+            equals = a + b
+            print(user_input, "=", equals)
+        elif '-' in user_input_list:
             print("Your chosen operation is subtraction. ")
-            a = float(userInputList[0])
-            b = float(userInputList[2])
-            equals = a-b
-            print(userInput, "=", equals)
-        elif '*' in userInputList:
+            a = float(user_input_list[0])
+            b = float(user_input_list[2])
+            equals = a - b
+            print(user_input, "=", equals)
+        elif '*' in user_input_list:
             print("Your chosen operation is multiplication. ")
-            a = float(userInputList[0])
-            b = float(userInputList[2])
-            equals = a*b
-            print(userInput, "=", equals)
-        elif '/' in userInputList:
+            a = float(user_input_list[0])
+            b = float(user_input_list[2])
+            equals = a * b
+            print(user_input, "=", equals)
+        elif '/' in user_input_list:
             print("Your chosen operation is division. ")
-            a = float(userInputList[0])
-            b = float(userInputList[2])
+            a = float(user_input_list[0])
+            b = float(user_input_list[2])
             if b == 0:
-                print("Sorry, you cannot divide by zero. \nOperation terminated. Please enter another expression. ")
+                print(
+                    "Sorry, you cannot divide by zero. \nOperation "
+                    "terminated. Please enter another expression. ")
                 requirements()
             else:
-                equals = a/b
-                print(userInput, "=", equals)
-        elif '**' in userInputList:
+                equals = a / b
+                print(user_input, "=", equals)
+        elif '**' in user_input_list:
             print("Your chosen operation is exponentiation. ")
-            a = float(userInputList[0])
-            b = float(userInputList[2])
-            equals = a**b
-            print(userInput, "=", equals)
-        elif '//' in userInputList:
+            a = float(user_input_list[0])
+            b = float(user_input_list[2])
+            equals = a ** b
+            print(user_input, "=", equals)
+        elif '//' in user_input_list:
             print("Your chosen operation is floor division. ")
-            a = float(userInputList[0])
-            b = float(userInputList[2])
-            equals = a//b
-            print(userInput, "=", equals)
-        elif '%' in userInputList:
+            a = float(user_input_list[0])
+            b = float(user_input_list[2])
+            equals = a // b
+            print(user_input, "=", equals)
+        elif '%' in user_input_list:
             print("Your chosen operation is modulus. ")
-            a = float(userInputList[0])
-            b = float(userInputList[2])
-            equals = a%b
-            print(userInput, "=", equals)
-        elif ('=') in userInputList:
+            a = float(user_input_list[0])
+            b = float(user_input_list[2])
+            equals = a % b
+            print(user_input, "=", equals)
+        elif '=' in user_input_list:
             print("You've chosen to check equality. ")
-            a = float(userInputList[0])
-            b = float(userInputList[2])
-            if not a == b:  #wrote this expression check to include the 'not' key phrase.
-                print(userInput, "is not a true expression. ")
+            a = float(user_input_list[0])
+            b = float(user_input_list[2])
+            if not a == b:  # wrote this expression check to include the
+                # 'not' key phrase.
+                print(user_input, "is not a true expression. ")
             elif a == b:
-                print(userInput, "is a true expression. ")
-        elif ('!=') in userInputList:
+                print(user_input, "is a true expression. ")
+        elif '!=' in user_input_list:
             print("You've chosen to check equality. ")
-            a = float(userInputList[0])
-            b = float(userInputList[2])
+            a = float(user_input_list[0])
+            b = float(user_input_list[2])
             if a != b:
-                print(userInput, "is a true expression. ")
+                print(user_input, "is a true expression. ")
             else:
-                print(userInput, "is not a true expression. ")
-        elif ('>') in userInputList:
+                print(user_input, "is not a true expression. ")
+        elif '>' in user_input_list:
             print("You've chosen to check equality. ")
-            a = float(userInputList[0])
-            b = float(userInputList[2])
+            a = float(user_input_list[0])
+            b = float(user_input_list[2])
             if a > b:
-                print(userInput, "is a true expression. ")
+                print(user_input, "is a true expression. ")
             else:
-                print(userInput, "is not a true expression. ")
-        elif ('<') in userInputList:
+                print(user_input, "is not a true expression. ")
+        elif '<' in user_input_list:
             print("You've chosen to check equality. ")
-            a = float(userInputList[0])
-            b = float(userInputList[2])
+            a = float(user_input_list[0])
+            b = float(user_input_list[2])
             if a < b:
-                print(userInput, "is a true expression. ")
+                print(user_input, "is a true expression. ")
             else:
-                print(userInput, "is not a true expression. ")
-        elif ('>=') in userInputList:
+                print(user_input, "is not a true expression. ")
+        elif '>=' in user_input_list:
             print("You've chosen to check equality. ")
-            a = float(userInputList[0])
-            b = float(userInputList[2])
+            a = float(user_input_list[0])
+            b = float(user_input_list[2])
             if a >= b:
-                print(userInput, "is a true expression. ")
+                print(user_input, "is a true expression. ")
             else:
-                print(userInput, "is not a true expression. ")
-        elif ('<=') in userInputList:
+                print(user_input, "is not a true expression. ")
+        elif '<=' in user_input_list:
             print("You've chosen to check equality. ")
-            a = float(userInputList[0])
-            b = float(userInputList[2])
+            a = float(user_input_list[0])
+            b = float(user_input_list[2])
             if a <= b:
-                print(userInput, "is a true expression. ")
+                print(user_input, "is a true expression. ")
             else:
-                print(userInput, "is not a true expression. ")
+                print(user_input, "is not a true expression. ")
         else:
-            print("Sorry, that does not fit this function's input requirements. \nOperation terminated. Please enter another expression. ")
-        checkAnother = input("\nEnter 'y' to perform another operation, or anything else to return to the main menu. ")
+            print(
+                "Sorry, that does not fit this function's input "
+                "requirements. \nOperation terminated. Please enter another "
+                "expression. ")
+        check_another = input(
+            "\nEnter 'y' to perform another operation, or anything else to "
+            "return to the main menu. ")
     print("Returning to the main menu! ")
-    main()
+    menu()
 
-#misc1() will pass along inputs as parameters to other functions.
-def misc1():
+
+# misc_n() are functions which allow me to satisfy project requirements.
+def misc_1():
     print("Let's pass along some inputs as parameters to other functions! ")
     parameters = input("Type whatever you want and press enter! ")
     misc2(parameters)
 
 
-def misc2(userInput):
-    if len(userInput)<0 or len(userInput)==0:   #or key term!
+def misc_2(user_input):
+    if len(user_input) < 0 or len(user_input) == 0:  # or key term!
         print("Oops! You didn't enter anything! Try again. ")
         misc1()
-    elif userInput.isspace():
+    elif user_input.isspace():
         print("Oops! You only entered spaces! Try again. ")
         misc1()
     else:
-        print("Your parameter was " + str(userInput) + "! ")
-        userInputList = list(userInput.strip().split())
-        tripleIt = input("type 'three's company too' to triple every first phrase, bit, or chunk of your input! ")
-        if tripleIt == "three's company too":
-            tripleInputList = []
-            for x in range(0, len(userInputList)):
-                tripleInputList.append((" " + userInputList[x] + " ")*3)    #string multiplication operator!
-            print(tripleInputList)
+        print("Your parameter was " + str(user_input) + "! ")
+        user_input_list = list(user_input.strip().split())
+        triple_it = input(
+            "type 'three's company too' to triple every first phrase, bit, "
+            "or chunk of your input! ")
+        if triple_it == "three's company too":
+            triple_input_list = []
+            for x in range(0, len(user_input_list)):
+                triple_input_list.append((" " + user_input_list[
+                    x] + " ") * 3)  # string multiplication operator!
+            print(triple_input_list)
             print("\nThanks for playing! Returning to the main menu. ")
-            main()
+            menu()
         else:
             print("\nNo problem, three's a crowd anyways. ")
-            parameters = userInputList
-            misc3(parameters)
+            parameters = user_input_list
+            misc_3(parameters)
 
-def misc3(inputList):
-    if len(inputList) == 1:
+
+def misc_3(input_list):
+    if len(input_list) == 1:
         print("\nYou didn't include any spaces in your input! ")
-    elif len(inputList) == 2:
+    elif len(input_list) == 2:
         print("\nYou included 1 space in your input! ")
-    elif len(inputList) > 2 and len(inputList) <= 10:   #and key term!
-        print("\nYou included " + str(len(inputList)-1) + " spaces in your input! ")
+    elif 2 < len(input_list) <= 10:  # and key term!
+        print("\nYou included " + str(
+            len(input_list) - 1) + " spaces in your input! ")
     print("\nThanks for playing! Returning to the main menu. ")
-    main()
+    menu()
 
 
-
-startup()
-
-
-
-
-
-
-
-
-
+main()
